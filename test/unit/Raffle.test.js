@@ -114,5 +114,20 @@ const { developmentChains, networkConfig } = require("../../helper-hardhat-confi
                       "Raffle__UpkeepNotNeeded"
                   )
               })
+              it("update raffle state, emits event, and calls vrf coordinator", async function () {
+                  //
+                  await raffle.enterRaffle({ value: raffleEntranceFee })
+                  await network.provider.send("evm_increaseTime", [interval.toNumber() + 1])
+                  await network.provider.send("evm_mine", [])
+                  const txResponse = await raffle.performUpkeep([])
+                  const txReceipt = await txResponse.wait(1)
+
+                  // 1st event because requestRandomWords already emitted an event.
+                  // In fact, emit RequestedRaffleWinner(requestId) is actually reduntant.
+                  const requestId = txReceipt.events[1].args.requestId
+                  assert(requestId.toNumber() > 0)
+                  const raffleState = await raffle.getRaffleState()
+                  assert(raffleState.toString() == "1")
+              })
           })
       })

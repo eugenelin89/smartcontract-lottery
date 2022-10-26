@@ -136,7 +136,7 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
             i_callbackGasLimit,
             NUM_WORDS
         );
-        emit RequestRaffleWinner(requestId);
+        emit RequestRaffleWinner(requestId); //redundant!
     }
 
     function fulfillRandomWords(
