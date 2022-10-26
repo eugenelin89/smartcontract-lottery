@@ -62,6 +62,7 @@ const { developmentChains, networkConfig } = require("../../helper-hardhat-confi
 
           describe("checkUpkeep", async function () {
               it("returns false if people haven't sent any ETH", async function () {
+                  await raffle.enterRaffle({ value: raffleEntranceFee })
                   await network.provider.send("evm_increaseTime", [interval.toNumber() + 1])
                   await network.provider.send("evm_mine", [])
                   // But checkUpKeep is public,
@@ -69,6 +70,17 @@ const { developmentChains, networkConfig } = require("../../helper-hardhat-confi
                   // Don't want to send a transaction but want simulate sending transaction.
                   const { upkeepNeeded } = await raffle.callStatic.checkUpkeep([])
                   assert(!upkeepNeeded)
+              })
+
+              it("returns false if raffle isn't open", async function () {
+                  await raffle.enterRaffle({ value: raffleEntranceFee })
+                  await network.provider.send("evm_increaseTime", [interval.toNumber() + 1])
+                  await network.provider.send("evm_mine", [])
+                  await raffle.performUpkeep("0x") // "0x" same as []
+                  const raffleState = await raffle.getRaffleState()
+                  const { upkeepNeeded } = await raffle.callStatic.checkUpkeep([])
+                  assert.equal(raffleState.toString(), "1")
+                  assert.equal(upkeepNeeded, false)
               })
           })
       })
