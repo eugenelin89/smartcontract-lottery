@@ -28,6 +28,9 @@ module.exports = {
     },
     //solidity: "0.8.17",
     solidity: "0.8.7",
+    etherscan: {
+        apiKey: ETHERSCAN_API_KEY,
+    },
     namedAccounts: {
         deployer: {
             default: 0,
